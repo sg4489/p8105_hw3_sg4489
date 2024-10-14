@@ -592,7 +592,7 @@ pivoted_table <- summary_table %>%
 
 # Create a reader-friendly table using gt()
 pivoted_table %>% 
-  gt() %>% 
+  kable() %>% 
   tab_header(title = "Total Number of Rides by Year, Month, and Rider Type", 
              subtitle = "Citi Bike Member vs Casual Riders") %>% 
   cols_label(
