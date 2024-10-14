@@ -292,7 +292,7 @@ Produce a reader-friendly table for the number of men and women in each educatio
 
 #### First, I create a table for the number of men and women in each education category:  
 
-```{r gender_education_table, fig.width=5, fig.height=2}
+```{r gender_education_table}
 # Generate a table of people classified by gender and education level
 gender_education_table <- nhanes_covar %>% 
   group_by(sex, education) %>% 
