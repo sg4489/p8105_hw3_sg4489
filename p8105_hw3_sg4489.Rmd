@@ -579,7 +579,7 @@ This dataset is ready for analysis on ridership trends, user behavior, and ride 
 #### Create a table. 
 To create an easy-to-read table showing the total number of rides for each year and month combination, separating casual riders and Citi Bike members, we can aggregate the data by grouping by year, month, and member_casual, then calculate the total number of rides. Afterwards, we can use the gt() package to format the results into an easy-to-read format.  
 
-```{r create_table}
+```{r create_table, results='asis'}
 # Summarize total rides by year, month, and rider type
 summary_table <- citi_data %>% 
   group_by(year, month, member_casual) %>% 
@@ -592,7 +592,7 @@ pivoted_table <- summary_table %>%
 
 # Create a reader-friendly table using gt()
 pivoted_table %>% 
-  kable() %>% 
+  gt() %>% 
   tab_header(title = "Total Number of Rides by Year, Month, and Rider Type", 
              subtitle = "Citi Bike Member vs Casual Riders") %>% 
   cols_label(
