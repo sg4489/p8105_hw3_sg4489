@@ -305,11 +305,9 @@ gender_education_wide <- gender_education_table %>%
   rename(Male = Count_Male, Female = Count_Female)
 
 # Using gt() to create a more readable table
-if (knitr::is_html_output()) {
 gender_education_wide %>%
   gt() %>%
   tab_header(title = "Number of Men and Women in Each Education Category")
-}
 ```
 
 In this table:  
