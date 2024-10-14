@@ -1,0 +1,260 @@
+---
+title: "problem_3"
+author: "sg4489"
+date: "2024-10-12"
+output: github_document
+---
+
+```{r load_packages, message=FALSE}
+library(tidyverse)
+library(gt)
+library(ggplot2)
+```
+
+# Problem 3
+
+### Import, clean, and tidy these data, and describe the resulting dataset.
+
+#### Import datasets
+
+There are 4 dataset I need to import: Jan_2020_Citi, Jan_2024_Citi, July_2020_Citi, and July_2024_Citi.  
+
+```{r import_data}
+Jan_2020_Citi <- read_csv("datasets/citibike/Jan 2020 Citi.csv/Jan 2020 Citi.csv", show_col_types = FALSE)
+Jan_2024_Citi <- read_csv("datasets/citibike/Jan 2024 Citi.csv/Jan 2024 Citi.csv", show_col_types = FALSE)
+July_2020_Citi <- read_csv("datasets/citibike/July 2020 Citi.csv/July 2020 Citi.csv", show_col_types = FALSE)
+July_2024_Citi <- read_csv("datasets/citibike/July 2024 Citi.csv/July 2024 Citi.csv", show_col_types = FALSE) 
+```
+
+#### Clean and tidy the data
+
+```{r clean_data}
+# Add year, month and dataset source columns to each dataset 
+Jan_2020_Citi <- Jan_2020_Citi %>% 
+  mutate(year = 2020, month = "January", dataset = "Jan_2020_Citi")
+Jan_2024_Citi <- Jan_2024_Citi %>% 
+  mutate(year = 2024, month = "January", dataset = "Jan_2024_Citi")
+July_2020_Citi <- July_2020_Citi %>% 
+  mutate(year = 2020, month = "July", dataset = "July_2020_Citi")
+July_2024_Citi <- July_2024_Citi %>% 
+  mutate(year = 2024, month = "July", dataset = "July_2024_Citi")
+
+# Merge all datasets 
+citi_data <- bind_rows(Jan_2020_Citi, Jan_2024_Citi, July_2020_Citi, July_2024_Citi) 
+
+# Check
+glimpse(citi_data)
+```
+
+I have combined these datasets into one large data frame. Now I need to check if there are any missing values in the data and handle them as needed.  
+
+```{r check_missing}
+# Check missing data
+colSums(is.na(citi_data))
+```
+
+The dataset is generally complete, except for some missing station names. The missing values in station names could occur due to technical issues (e.g., GPS errors) or data entry problems.  
+To handle the missing station name, I mark label the missing station name as "Unknown".  
+
+```{r handle_missing_station}
+# Lable missing station name as Unknown
+citi_data <- citi_data %>%
+  mutate(
+    start_station_name = ifelse(is.na(start_station_name), "Unknown", start_station_name),
+    end_station_name = ifelse(is.na(end_station_name), "Unknown", end_station_name)
+  )
+```
+
+Next, I will check whether there is duplicate and abnormal data.  
+
+```{r check_duplicate_and_abnormal}
+# Remove duplicate rows
+citi_data <- citi_data %>%
+  distinct()
+
+# Check for abnormal riding duration and delete data with negative or unreasonable duration
+citi_data <- citi_data %>%
+  filter(duration >= 0) 
+```
+
+Finally, rearrange the column names to make the data more readable.  
+
+```{r rearrange_column}
+citi_data <- citi_data %>%
+  select(
+    ride_id, member_casual, rideable_type, year, month, weekdays, duration, start_station_name, end_station_name, dataset)
+```
+
+#### Describe the resulting dataset. 
+
+This dataset provides information on Citi Bike rides taken in January and July of 2020 and 2024. Key columns include:  
+ride_id: Unique identifier for each ride.  
+member_casual: Rider type, either member or casual.  
+rideable_type: Type of bike, either classic_bike or electric_bike.  
+year and month: Year and month of the ride.  
+weekdays: Day of the week when the ride occurred.  
+duration: Ride duration in minutes.  
+start_station_name and end_station_name: Starting and ending stations.  
+dataset: Indicates the dataset source (e.g., Jan_2020_Citi).  
+
+This dataset is ready for analysis on ridership trends, user behavior, and ride patterns across different time periods and rider types.  
+
+### Showing the total number of rides in each combination of year and month separating casual riders and Citi Bike members.
+
+#### Create a table. 
+To create an easy-to-read table showing the total number of rides for each year and month combination, separating casual riders and Citi Bike members, we can aggregate the data by grouping by year, month, and member_casual, then calculate the total number of rides. Afterwards, we can use the gt() package to format the results into an easy-to-read format.  
+
+```{r create_table}
+# Summarize total rides by year, month, and rider type
+summary_table <- citi_data %>% 
+  group_by(year, month, member_casual) %>% 
+  summarise(total_rides = n(), .groups = "drop")
+
+# Pivot the table to have rider types as columns
+pivoted_table <- summary_table %>% 
+  pivot_wider(names_from = member_casual, values_from = total_rides, names_prefix = "Total_") %>% 
+  mutate(Total_Rides = Total_member + Total_casual)  # Calculate sum of member and casual rides
+
+# Create a reader-friendly table using gt()
+pivoted_table %>% 
+  gt() %>% 
+  tab_header(title = "Total Number of Rides by Year, Month, and Rider Type", 
+             subtitle = "Citi Bike Member vs Casual Riders") %>% 
+  cols_label(
+    year = "Year", 
+    month = "Month", 
+    Total_member = "Member Total Rides", 
+    Total_casual = "Casual Total Rides",
+    Total_Rides = "Total Rides"
+  ) %>% 
+   fmt_number(columns = c(Total_member, Total_casual, Total_Rides))
+```
+
+#### Comment on these results.
+
+The table now includes a Total Rides column, which makes it easy to see the combined rides from both members and casual riders for each time period. This format highlights the overall ridership trends while still showing the breakdown between rider types.  
+
+1. Casual vs. Member Rides:  
+Members consistently take significantly more rides than casual riders, which aligns with the expectation that members are regular users, while casual users are occasional riders or tourists.  
+2. Seasonality:  
+There is a noticeable increase in rides in July compared to January for both years, which suggests seasonal usage patterns. This likely reflects the fact that summer months see higher ridership due to favorable weather.      
+3. Year-over-Year Growth:  
+Comparing 2020 and 2024, we observe growth in the total number of rides in both January and July. This indicates an overall increase in Citi Bike usage over the four-year span.  
+
+### Make a table showing the 5 most popular starting stations for July 2024.
+
+First I should find the 5 most popular starting stations.
+
+```{r find_popular_start}
+# Filter the data for July 2024
+july_2024_data <- citi_data %>% 
+  filter(year == 2024, month == "July")
+
+# Find the 5 most popular starting stations
+popular_stations <- july_2024_data %>% 
+  group_by(start_station_name) %>%  # Group the data by start_station_name
+  summarise(total_rides = n()) %>%  # Count the number of rides originating from each station
+  arrange(desc(total_rides)) %>%  # Sort stations in descending order of the total number of rides
+  slice_head(n = 5)  # Selects the top 5 starting stations
+
+# Show the 5 most popular stations
+cat("The 5 most popular starting stations are", 
+    paste(popular_stations %>% pull(start_station_name), collapse = ", "), "\n")
+```
+
+Display them in a table:  
+
+```{r make_table}
+popular_stations %>% 
+  gt() %>% 
+  tab_header(title = "Top 5 Starting Stations for July 2024",
+             subtitle = "Based on Number of Rides")
+```
+
+The top stations are mostly located in busy and popular areas of Manhattan, which are likely hubs for both commuters and tourists.  
+The difference in the number of rides between the stations is relatively small, indicating that all these stations are heavily used.  
+The Chelsea Piers area is a key attraction, contributing to it being the most popular station for rides. 
+
+### Make a plot to investigate the effects of day of the week, month, and year on median ride duration.
+
+#### Calculate median ride duration 
+
+First I need to Compute median ride duration for each day of the week, month, and year.  
+
+```{r median_calc}
+# Calculate the median ride duration for each combination of year, month, and weekday
+median_duration_data <- citi_data %>% 
+  group_by(year, month, weekdays) %>% 
+  summarise(median_duration = median(duration), .groups = "drop") %>% 
+  mutate(year = as.factor(year), 
+         weekdays = factor(
+           weekdays, levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")))
+```
+
+Then create a multi-panel plot to visualize how these factors affect the median ride duration.  
+
+```{r plot_median}
+ggplot(median_duration_data, aes(x = weekdays, y = median_duration, fill = factor(year))) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.8) +  # Side-by-side bars (dodge)
+  geom_line(aes(group = year, color = factor(year)), size = 1.0, position = position_dodge(width = 0.9)) +  # Add line trend on top of bars
+  facet_wrap(~ month, ncol = 2) +  # Create two panels for January and July
+  labs(title = "Comparison of Median Ride Duration in January and July (2020 vs 2024)",
+       x = "Day of the Week",
+       y = "Median Ride Duration (minutes)",
+       fill = "Year", color = "Year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#### Comment on your observations from this plot. 
+
+1. Seasonal Variation:  
+July has higher median ride durations than January, likely due to better weather conditions in summer, encouraging longer rides.  
+2. Weekday vs. Weekend:  
+Weekends (Saturday and Sunday) show notably higher ride durations than weekdays in both months, indicating longer, possibly leisure rides on weekends.  
+3. 2020 vs. 2024 Comparison:  
+In January, ride durations are fairly similar between the two years.  
+In July, 2020 consistently shows higher ride durations, especially on weekends, suggesting a possible shift in ride behavior between the two years, likely influenced by external factors.  
+
+Conclusion:  
+The data shows clear seasonal and weekly patterns, with 2020 showing longer rides in July compared to 2024, especially on weekends.  
+
+### Make a figure that shows the impact of month, membership status, and bike type on the distribution of ride duration. 
+
+#### Make a figure. 
+
+To analyze the impact of month, membership status, and bike type on the distribution of ride duration for 2024, we can create a facet plot to visualize how these factors interact. A good approach would be to use box plots to display the distribution of ride duration across different bike types.   
+
+```{r make_figure}
+# Filter data for the year 2024
+citi_2024_data <- citi_data %>%
+  filter(year == 2024)  # Keep only 2024 data
+
+# Create the box plot to show the impact of month, membership status, and bike type
+ggplot(citi_2024_data, aes(x = rideable_type, y = duration, fill = member_casual)) +
+  geom_boxplot(outlier.size = 1.2, alpha = 0.7) +  # Box plot to show distribution
+  facet_wrap(~ month, scales = "free", ncol = 2) +  # Facet by month
+  scale_y_log10() +  # Log scale for y-axis to handle large variability in ride duration
+  labs(title = "Impact of Month, Membership Status, and Bike Type on Ride Duration (2024)",
+       x = "Bike Type",
+       y = "Ride Duration (minutes)",
+       fill = "Membership Status") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#### Comment on your results. 
+
+1. Impact of Bike Type:  
+Electric bikes have a generally shorter ride duration compared to classic bikes, which is expected as electric bikes allow riders to cover distances more quickly. This trend is consistent across both January and July.  
+Casual riders tend to have slightly longer ride durations on electric bikes compared to members, particularly in July.  
+2. Seasonal Impact:  
+July shows a wider range of ride durations compared to January, likely due to better weather conditions encouraging longer leisure rides.  
+In January, ride durations are generally shorter, possibly due to colder weather, limiting the time riders spend outdoors.  
+3. Membership Status:  
+Casual riders tend to have longer ride durations on both bike types compared to members, especially on classic bikes. This suggests that casual riders may be using bikes for leisure or longer trips, while members tend to use the bikes for shorter, more utilitarian purposes.  
+4. Ride Duration Distribution:  
+The distributions show that there are more outliers (very long rides) for casual riders on classic bikes, particularly in July, indicating some riders are taking significantly longer trips during the warmer months.  
+
+Conclusion:  
+Electric bikes lead to faster, shorter trips, particularly for members, while casual riders take longer rides, especially on classic bikes, with more extended trips seen during summer months.  

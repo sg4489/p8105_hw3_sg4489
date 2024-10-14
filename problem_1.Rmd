@@ -1,0 +1,245 @@
+---
+title: "p8105_hw3_sg4489"
+author: "sg4489"
+date: "2024-10-10"
+output: html_document
+---
+
+```{r load_packages}
+library(tidyverse)
+library(gt)
+library(ggplot2)
+```
+
+# Problem 1
+
+### Load and describe the raw dataset: 
+
+First, I load the dataset: ny_noaa, ensure it is fully evaluated and loaded, and check the head of data to see the basic structure of the data.  
+
+```{r load_dataset}
+# Load the p8105.datasets package
+library(p8105.datasets)
+
+# Load the datasets: nyc_airbnb and rest_inspec
+data("ny_noaa")
+
+# Use force() to ensure that the dataset is fully evaluated and loaded
+#ny_noaa <- force(ny_noaa)
+```
+
+Then, convert the data to dataFrame for next processing.  
+
+```{r convert}
+# Convert to dataFrame
+ny_noaa_df <- as.data.frame(ny_noaa)
+
+# View the structure of the data frame
+glimpse(ny_noaa_df) 
+```
+
+This dataset contains variables:  
+id: Weather station ID  
+date: Date of observation  
+prcp: Precipitation (tenths of mm)  
+snow: Snowfall (mm)  
+snwd: Snow depth (mm)  
+tmax: Maximum temperature (tenths of degrees C)  
+tmin: Minimum temperature (tenths of degrees C)  
+
+### Create separate variables for year, month, and day.
+
+```{r}
+# Create new variables: year, month, and day by extracting them from the 'date' column
+ny_noaa_clean <- ny_noaa_df %>% 
+  mutate(
+    year = year(date), 
+    month = month(date), 
+    day = day(date)
+  )
+
+# Check the first few rows to confirm the new columns have been added
+head(ny_noaa_clean)
+```
+
+### Ensure observations for temperature, precipitation, and snowfall are given in reasonable units.
+
+By running glimpse(ny_noaa_df), I notice that tmax and tmin are chr type variables instead of int type variables, so I need to convert them to numbers.
+
+```{r convert_to_num}
+# Because tmax or tmin are not numeric, convert them to numeric
+ny_noaa_clean <- ny_noaa_clean %>%
+  mutate(
+    tmax = as.numeric(tmax),  # Convert tmax to numeric
+    tmin = as.numeric(tmin),  # Convert tmin to numeric
+    prcp = as.numeric(prcp)   # Convert prcp to numeric if necessary
+  )
+
+# Check the structure of the data again
+glimpse(ny_noaa_clean)
+```
+
+Now that I’ve confirmed that prcp, tmax, and tmin are all double precision floating point numbers (dbl). Then I can safely convert units of them.  
+
+```{r convert_units}
+# Convert tmax and tmin from tenths of degrees Celsius to degrees Celsius
+# Convert prcp from tenths of millimeters to millimeters
+ny_noaa_clean <- ny_noaa_clean %>% 
+  mutate(
+    tmax = tmax / 10, 
+    tmin = tmin / 10, 
+    prcp = prcp / 10
+  )
+```
+
+I convert precipitation from tenths of mm and temperature from tenths of degrees Celsius to mm and degrees Celsius; the original data for snowfall is in mm, so no additional conversion is needed.  
+This way, the observed values of temperature(tmax, tmin), precipitation(prcp), and snowfall(snow) are given in reasonable units.  
+
+### For snowfall, what are the most commonly observed values? Why?  
+
+```{r calculate_frequency}
+# Calculate the frequency of each value in the snow column
+snow_frequency <- table(ny_noaa_clean %>% pull(snow))
+
+#Find the value that appears most frequently
+most_frequent <- names(which.max(snow_frequency))
+```
+
+I calculated that the most common snowfall is 0. But from the summary(ny_noaa_df) above, I can see that there are also a lot of na, so next I want to compare the number of na and 0.  
+
+```{r compare_na_and_0}
+# Count the number of 0 values in the snow column
+zero_count <- sum(ny_noaa_clean %>% pull(snow) == 0, na.rm = TRUE)
+
+# Count the number of NA values in the snow column
+na_count <- sum(is.na(ny_noaa_clean %>% pull(snow)))
+
+#Compare the counts
+cat("Number of 0s:", zero_count, "\n")
+cat("Number of NAs:", na_count, "\n")
+
+# Check which is larger
+if (zero_count > na_count) {
+  cat("There are more 0s than NAs.\n")
+} else if (zero_count < na_count) {
+  cat("There are more NAs than 0s.\n")
+} else {
+  cat("The number of 0s and NAs is equal.\n")
+}
+```
+
+In snowfall data, the most common observed value is often 0, and there are several reasons for this:  
+1. Snowfall mainly occurs in winter: In most regions, snowfall is limited to the winter months. Outside of winter, snow is rare or nonexistent, leading to a high number of days with no snowfall recorded (0).  
+2. Even in colder climates, snowfall doesn't happen every day during the winter. Snowfall events are relatively infrequent, so the majority of days, even in winter, have no snowfall, contributing to the large number of 0 values.   
+3. Many weather stations consistently record data daily, even when there is no precipitation. On days with no snowfall, a 0 is logged. This frequent recording of 0 on non-snow days leads to its dominance in the dataset. 
+
+Finally, rearrange column names to make the data more readable and describe the processed data.  
+
+```{r}
+# Rearrange columns
+ny_noaa_clean <- ny_noaa_clean %>%
+  select(id, date, year, month, day, tmax, tmin, prcp, snow, snwd)  
+
+# Displaying organized data
+glimpse(ny_noaa_clean)
+```
+
+# Describe the cleaned data
+
+```{r data_summary}
+# View summary statistics for each column
+summary(ny_noaa_clean)
+```
+
+1. The dataset contains 2,595,176 observations and 7 variables, covering weather measurements from NOAA weather stations from 1981 to 2010. The key variables recorded are daily precipitation, snowfall, snow depth, maximum temperature, and minimum temperature. Below is a summary of the structure and key variables.  
+
+2. Key variables and their missing data:  
+*id*: Weather station ID.  
+*date*: Date of observation, ranging from 1981-01-01 to 2010-12-31.  
+*prcp*: Precipitation (mm). There are significant missing values (NAs: 145,838), and the maximum recorded value is 2,286 millimeters.  
+*snow*: Snowfall (mm). The most common value is 0, and the maximum recorded snowfall is 10,160 mm.  
+*snwd*: Snow depth (mm). The snow depth ranges from 0 to 9,195 mm, with significant missing values (NAs: 591,786).  
+*tmax*: Maximum temperature (degrees C) with many missing values (NAs: 1,134,358). The maximum value is 60.0, and the minimum is -38.9.  
+*tmin*: Minimum temperature (degrees C) with similar missing values as tmax (NAs: 1,134,420). The range is from -59.4 to 60.0 degrees.  
+
+3. Summary: The dataset provides a rich collection of daily weather observations over a long time period but suffers from a high degree of missing data, especially in the temperature and snow-related variables. This will require careful handling and potentially imputing or filtering for missing values in any further analysis.  
+
+### Two-Panel Plot for Max Temperature in January and July
+
+Now, I can create a two-panel plot showing the average max temperature in January and July for each station across years. This will allow us to observe any patterns or outliers. 
+
+```{r two_panel_plot}
+# Filter for January and July, calculate average max temperature per station and year
+jan_jul_temps <- ny_noaa_clean %>%
+  filter(month %in% c(1, 7)) %>%  # Filter for January and July
+  group_by(id, year, month) %>%
+  summarise(mean_tmax = mean(tmax, na.rm = TRUE)) %>%  # Calculate average max temp
+  ungroup()
+
+# Create the two-panel plot using ggplot, fixing the degree symbol issue
+ggplot(jan_jul_temps, aes(x = year, y = mean_tmax, color = id)) +
+  geom_line(alpha = 0.5) +  # Line plot for each station
+  facet_wrap(~ month, scales = "free_y", ncol = 1, labeller = as_labeller(c(`1` = "January", `7` = "July"))) +  # Separate panels
+  labs(
+    title = "Average Max Temperature in January and July by Station Across Years",
+    x = "Year",
+    y = "Average Max Temperature (\u00B0C)",  # Proper degree symbol
+    color = "Station ID"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none",  # Remove legend (too many lines)
+        panel.grid.minor = element_blank())
+```
+
+Observable / interpretable structure:  
+Yearly Consistency: Most stations exhibit stable temperatures across years, with typical seasonal patterns.  
+Geographic Variation: Differences between stations may reflect geographic factors, such as coastal vs. inland locations, influencing temperature extremes.  
+
+Outliers:  
+Unusual Spikes/Dips: Sudden deviations, like extreme highs in January or sharp drops in July, could indicate data errors or unusual weather events (e.g., cold snaps, heatwaves).  
+Missing Data: Gaps or incomplete records can also create apparent outliers, disrupting the overall trend.  
+
+### Make a two-panel plot showing (i) tmax vs tmin for the full dataset.
+
+A scatterplot for tmax vs tmin might not be ideal due to the large amount of data. Instead, we can use a hexbin plot to handle the dense data points. For the snowfall distribution, we will use boxplots to show the distribution of snowfall values by year.  
+
+```{r}
+# 1. Plot tmax vs tmin using hexbin plot
+tmax_tmin_plot <- ny_noaa_clean %>% 
+  filter(!is.na(tmax) & !is.na(tmin)) %>%  # Filter out missing values
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex(bins = 50) +  # Hexbin plot to handle dense data
+  scale_fill_viridis_c() + 
+  labs(
+    title = "tmax vs tmin (Hexbin Plot)",
+    x = "Minimum Temperature (\u00B0C)",  # Unicode for degree symbol
+    y = "Maximum Temperature (\u00B0C)",  # Unicode for degree symbol
+    fill = "Count"
+  ) + 
+  theme_minimal()
+
+# 2. Distribution of snowfall values greater than 0 and less than 100, by year
+snowfall_plot <- ny_noaa_clean %>% 
+  filter(snow > 0 & snow < 100) %>%   # Filter snowfall values between 0 and 100
+  group_by(year) %>% 
+  ggplot(aes(x = factor(year), y = snow)) + 
+  geom_boxplot() + 
+  labs(
+    title = "Distribution of Snowfall by Year",
+    x = "Year",
+    y = "Snowfall (mm)"
+  ) + 
+  scale_x_discrete(breaks = seq(1980, 2020, by = 5)) +  # Show every 5 years on the x-axis
+  theme_minimal()
+
+# Combine both plots using patchwork
+library(patchwork)
+tmax_tmin_plot + snowfall_plot + 
+  plot_layout(widths = c(1, 1.5))  # Make the right plot 1.5 times wider
+```
+
+The first panel will show a hexbin plot of tmax vs tmin.  
+In the first panel (tmax vs tmin), we observe a strong linear relationship between maximum and minimum temperatures, as expected. Most temperatures cluster between 0°C and 30°C, with extreme outliers below -30°C and above 50°C, though these are rare.  
+
+The second panel will display a boxplot showing the distribution of snowfall values greater than 0 and less than 100, grouped by year.  
+In the second panel (Distribution of Snowfall by Year), the majority of snowfall values are concentrated below 50 mm, with a few higher outliers each year. The distribution appears relatively consistent across years, though there is variability in more recent years, potentially due to changing weather patterns or improved data collection. 

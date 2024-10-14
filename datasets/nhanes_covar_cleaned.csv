@@ -1,0 +1,229 @@
+SEQN,sex,age,BMI,education
+62161,Male,22,23.3,High school equivalent
+62164,Female,44,23.2,More than high school
+62169,Male,21,20.1,High school equivalent
+62174,Male,80,33.9,More than high school
+62177,Male,51,20.1,High school equivalent
+62178,Male,80,28.5,High school equivalent
+62180,Male,35,27.9,More than high school
+62184,Male,26,22.1,High school equivalent
+62189,Female,30,22.4,More than high school
+62199,Male,57,28,More than high school
+62202,Male,36,24.7,Less than high school
+62205,Male,28,28.9,More than high school
+62206,Female,35,29.1,More than high school
+62208,Male,38,22.2,More than high school
+62209,Female,62,26,Less than high school
+62214,Female,22,23.8,High school equivalent
+62215,Female,65,26.7,More than high school
+62217,Female,77,30.6,Less than high school
+62218,Female,38,45.4,More than high school
+62220,Female,31,40.4,More than high school
+62222,Male,32,25,More than high school
+62223,Male,54,20.5,High school equivalent
+62224,Female,29,27.2,Less than high school
+62226,Male,80,28.4,More than high school
+62228,Male,50,43.4,More than high school
+62229,Female,31,28.6,More than high school
+62230,Male,75,29.7,Less than high school
+62231,Female,48,33.2,High school equivalent
+62232,Female,42,31.6,More than high school
+62233,Female,63,45.2,Less than high school
+62236,Male,61,23.2,More than high school
+62237,Female,58,39.9,More than high school
+62239,Female,22,23.3,High school equivalent
+62242,Male,24,27,More than high school
+62248,Male,65,26.6,Less than high school
+62249,Female,26,20.3,More than high school
+62251,Female,51,31.9,More than high school
+62255,Male,65,27.1,High school equivalent
+62258,Male,47,31,Less than high school
+62259,Male,61,41.7,More than high school
+62261,Male,47,28.6,More than high school
+62264,Male,77,31.1,Less than high school
+62265,Male,52,31.4,More than high school
+62275,Female,41,21.8,More than high school
+62277,Female,55,25,More than high school
+62278,Female,72,28.3,More than high school
+62279,Male,80,21.9,Less than high school
+62284,Female,64,25.6,More than high school
+62286,Male,30,41,High school equivalent
+62287,Female,73,26.8,More than high school
+62288,Male,29,20.1,More than high school
+62289,Male,71,28.8,Less than high school
+62291,Male,56,29.9,More than high school
+62293,Male,67,21.3,More than high school
+62295,Female,69,32.7,Less than high school
+62297,Male,43,31.1,More than high school
+62301,Male,23,33,Less than high school
+62302,Female,51,25.4,Less than high school
+62303,Female,76,31.9,High school equivalent
+62307,Male,61,33.5,High school equivalent
+62308,Female,78,24.6,High school equivalent
+62309,Female,47,34,Less than high school
+62312,Female,63,34.7,Less than high school
+62314,Male,61,34.2,High school equivalent
+62315,Female,80,22.7,Less than high school
+62317,Male,46,27.6,More than high school
+62320,Female,64,30,More than high school
+62330,Female,33,18.4,More than high school
+62332,Male,22,32.6,More than high school
+62342,Female,38,32.9,More than high school
+62343,Male,28,25.2,More than high school
+62347,Female,71,24,High school equivalent
+62349,Female,23,38,More than high school
+62350,Female,43,22.3,High school equivalent
+62353,Male,80,27.8,More than high school
+62357,Male,36,25.6,More than high school
+62359,Female,54,27.1,Less than high school
+62363,Female,44,25.8,Less than high school
+62366,Male,80,21.7,High school equivalent
+62367,Male,50,27.4,Less than high school
+62368,Female,80,22,Less than high school
+62370,Male,21,18.3,More than high school
+62371,Male,32,18.6,More than high school
+62374,Female,31,23.1,More than high school
+62375,Male,24,38.3,High school equivalent
+62377,Female,78,24.7,Less than high school
+62378,Female,68,33.2,Less than high school
+62379,Male,40,20.2,More than high school
+62383,Male,23,26.7,More than high school
+62386,Male,35,38.4,High school equivalent
+62387,Male,23,24.5,High school equivalent
+62391,Female,40,25.1,High school equivalent
+62397,Female,70,40.6,Less than high school
+62399,Female,53,30.7,Less than high school
+62400,Female,31,36.3,More than high school
+62402,Male,48,23.3,Less than high school
+62407,Male,49,29.9,More than high school
+62409,Female,80,30.5,High school equivalent
+62413,Male,65,40,More than high school
+62414,Male,58,16.5,High school equivalent
+62415,Female,27,26.7,More than high school
+62418,Male,80,23.5,Less than high school
+62419,Male,80,26.5,High school equivalent
+62421,Male,23,24.5,More than high school
+62425,Female,30,22.2,More than high school
+62429,Male,47,37.3,More than high school
+62430,Male,27,37.9,More than high school
+62431,Male,54,18.9,Less than high school
+62432,Female,38,23.4,More than high school
+62434,Female,61,34,High school equivalent
+62437,Male,39,27.2,Less than high school
+62439,Male,75,33,More than high school
+62440,Male,22,30.2,More than high school
+62441,Male,68,24,Less than high school
+62444,Female,23,33.6,More than high school
+62449,Female,38,26.4,Less than high school
+62450,Male,57,28.2,More than high school
+62452,Male,39,33.1,High school equivalent
+62454,Female,64,36.8,More than high school
+62457,Male,69,25.7,More than high school
+62460,Male,41,21.9,More than high school
+62461,Female,29,35.3,High school equivalent
+62464,Male,32,28.2,High school equivalent
+62465,Female,44,27.8,More than high school
+62467,Male,65,25.6,More than high school
+62471,Female,76,28,Less than high school
+62474,Female,71,56.3,High school equivalent
+62475,Male,22,25.8,High school equivalent
+62480,Male,43,28.5,High school equivalent
+62481,Female,39,27.7,More than high school
+62484,Female,42,47.2,More than high school
+62485,Male,21,33.3,More than high school
+62487,Male,65,25.5,Less than high school
+62494,Male,28,26.8,More than high school
+62495,Male,44,28.6,Less than high school
+62500,Female,52,24.3,More than high school
+62501,Female,30,25.6,More than high school
+62502,Male,35,36.5,High school equivalent
+62504,Female,30,38.9,Less than high school
+62506,Female,46,28.4,High school equivalent
+62509,Female,60,24.1,More than high school
+62510,Female,80,29.8,High school equivalent
+62512,Male,39,19.1,More than high school
+62513,Female,46,26.7,Less than high school
+62514,Male,44,33.6,High school equivalent
+62515,Female,42,31.6,Less than high school
+62517,Male,80,32.3,Less than high school
+62519,Male,56,25.8,High school equivalent
+62521,Female,59,23.1,More than high school
+62523,Male,33,30.1,More than high school
+62524,Male,23,24,More than high school
+62526,Female,62,28.7,High school equivalent
+62527,Male,79,25.8,Less than high school
+62529,Male,59,45.6,More than high school
+62530,Female,51,36.3,Less than high school
+62531,Female,52,33.3,High school equivalent
+62532,Female,64,39.5,High school equivalent
+62536,Male,46,27.5,Less than high school
+62539,Male,60,31.9,Less than high school
+62544,Male,42,25.6,More than high school
+62546,Male,64,36.5,More than high school
+62548,Male,57,34.2,High school equivalent
+62549,Male,53,21.5,High school equivalent
+62551,Female,37,48.2,More than high school
+62552,Female,41,22.5,More than high school
+62555,Male,35,20.2,More than high school
+62556,Female,31,22.4,More than high school
+62558,Female,49,38.2,High school equivalent
+62565,Male,23,31.7,More than high school
+62567,Female,80,22.4,Less than high school
+62571,Female,32,27.8,More than high school
+62572,Female,80,20.3,More than high school
+62573,Female,48,29.6,More than high school
+62577,Female,71,35.6,More than high school
+62579,Male,78,23.8,More than high school
+62584,Male,22,23.2,High school equivalent
+62585,Female,80,34.3,High school equivalent
+62586,Male,70,40.1,High school equivalent
+62587,Male,73,24.8,More than high school
+62589,Female,75,24.8,More than high school
+62593,Female,72,34.5,More than high school
+62595,Female,28,23.8,More than high school
+62596,Female,52,32.5,More than high school
+62597,Female,60,50.5,Less than high school
+62599,Female,50,30,More than high school
+62601,Male,65,26.1,High school equivalent
+62602,Female,80,25.8,More than high school
+62604,Female,73,22.2,High school equivalent
+62611,Male,45,30.7,Less than high school
+62612,Female,38,30.5,More than high school
+62613,Female,29,34.2,More than high school
+62616,Female,37,19.3,Less than high school
+62619,Male,80,24.9,More than high school
+62623,Female,78,26.9,More than high school
+62625,Female,60,23.9,More than high school
+62630,Female,68,31,Less than high school
+62631,Female,37,23.8,More than high school
+62632,Male,29,48.3,Less than high school
+62633,Female,61,24,More than high school
+62634,Male,68,32.6,Less than high school
+62635,Female,27,26.1,More than high school
+62639,Female,26,38.6,Less than high school
+62640,Female,31,37.1,High school equivalent
+62644,Male,61,42,More than high school
+62649,Male,76,36.6,High school equivalent
+62650,Male,71,33.3,Less than high school
+62651,Male,55,39.5,High school equivalent
+62652,Male,46,29.3,Less than high school
+62658,Male,68,34.5,High school equivalent
+62664,Male,64,39.4,More than high school
+62665,Female,67,20.1,More than high school
+62668,Male,33,36.1,More than high school
+62669,Male,33,22.5,More than high school
+62671,Male,69,26.3,More than high school
+62674,Female,33,21.5,More than high school
+62678,Male,68,23.7,Less than high school
+62680,Male,68,25.7,High school equivalent
+62682,Female,62,34.9,High school equivalent
+62684,Female,29,34,More than high school
+62685,Male,36,22.5,High school equivalent
+62686,Female,80,38.7,High school equivalent
+62689,Male,44,43.5,More than high school
+62690,Female,26,35.4,More than high school
+62691,Male,31,23.6,Less than high school
+62693,Female,69,40.7,Less than high school
+62694,Male,37,40.1,High school equivalent
+62701,Female,29,29.9,More than high school
+62704,Male,80,24.8,High school equivalent

@@ -1,0 +1,253 @@
+---
+title: "problem_2"
+author: "sg4489"
+date: "2024-10-12"
+output: github_document
+---
+
+```{r load_packages, message=FALSE}
+library(tidyverse)
+library(gt)
+library(ggplot2)
+```
+
+# Problem 2
+
+First, load the data using read.csv(), skipping the first four rows.    
+
+```{r load_dataset}
+# Import the participants’ demographic data
+nhanes_covar <- read_csv("datasets/nhanes_covar.csv", 
+                         skip = 4, show_col_types = FALSE)
+
+# Import their accelerometer data
+nhanes_accel <- read_csv("datasets/nhanes_accel.csv", show_col_types = FALSE)
+
+#Show the demographic data
+glimpse(nhanes_covar)
+
+# Use select() to select the first six columns and use glimpse() to display accelerometer data
+nhanes_accel %>% select(1:6) %>% glimpse()
+```
+
+### Load, tidy, merge, and otherwise organize the data sets.
+
+Below is how to exclude participants less than 21 years of age, and those with missing demographic data; and encode data with reasonable variable classes (i.e. not numeric, and using factors with the ordering of tables and plots in mind).  
+
+```{r tidy_demographic_data}
+# Filter participants who are 21 or older
+nhanes_covar <- nhanes_covar %>% filter(age >= 21)
+
+# Remove rows with missing data
+nhanes_covar <- nhanes_covar %>% drop_na()
+
+# Convert 'sex' and 'education' columns to factors with appropriate labels
+nhanes_covar <- nhanes_covar %>% 
+  mutate(
+    sex = factor(sex, levels = c(1, 2), labels = c("Male", "Female")), 
+    education = factor(education, levels= c(1, 2, 3), 
+                        labels = c("Less than high school", "High school equivalent", "More than high school"))
+  )
+
+# Save the cleaned data
+write_csv(nhanes_covar, "datasets/nhanes_covar_cleaned.csv")
+```
+
+### Visualization of gender-education, age-gender-education
+
+Produce a reader-friendly table for the number of men and women in each education category, and create a visualization of the age distributions for men and women in each education category.  
+
+#### First, I create a table for the number of men and women in each education category:  
+
+```{r gender_education_table, fig.width=5, fig.height=2}
+# Generate a table of people classified by gender and education level
+gender_education_table <- nhanes_covar %>% 
+  group_by(sex, education) %>% 
+  summarise(count = n(), .groups = "drop") 
+
+# Use pivot_wider to transform the data into a wide table format, with men on the left and women on the right
+gender_education_wide <- gender_education_table %>%
+  pivot_wider(names_from = sex, values_from = count, 
+              names_prefix = "Count_") %>%
+  rename(Male = Count_Male, Female = Count_Female)
+
+# Using gt() to create a more readable table
+gender_education_wide %>%
+  gt() %>%
+  tab_header(title = "Number of Men and Women in Each Education Category")
+```
+
+In this table:  
+Less than high school: 27 men, 28 women—balanced ratio.  
+High school equivalent: 35 men, 23 women—men outnumber women.  
+More than high school: 56 men, 59 women—roughly equal numbers.  
+To summary, Men dominate in the high school equivalent category, while other education levels have a near-equal gender ratio.
+
+#### Then, create a density plot of the age distributions for men and women in each education category.  
+
+```{r density_of_age}
+# Use ggplot2 to create a density plot
+ggplot(nhanes_covar, aes(x = age, fill = sex)) + 
+  geom_density(alpha = 0.5) +  # Translucent effect, easy to see the overlapping parts
+  facet_wrap(~education) +  # Split by education level
+  labs(
+    title = "Age Distributions for Men and Women in Each Education Category", 
+    x = "Age", 
+    y = "Density", 
+    fill = "Sex"
+  ) + 
+  theme_minimal() +  # Remove some background elements to make the chart look cleaner
+  theme(legend.position = "bottom",  # Place the legend at the bottom of the chart
+        plot.title = element_text(hjust = 0.5))  # Set the title to center
+```
+
+This density map shows the distribution of age by education level and gender:  
+Less than high school: Men concentrated between 40–60 years, women mostly above 60.
+High school equivalent: Women mostly between 40–60 years, men have a broader age range. Women are mainly concentrated between ages 40 and 60, showing a narrower range compared to men.  
+More than high school: Men has the distribution peaks around ages 40 to 70, with a gradual taper toward 80, and women is similar to men, with a slight peak between 50 and 60.
+Comment:  
+In lower education categories, women tend to be older than men, especially in the "less than high school" group.  
+In the "high school equivalent" group, men have a much wider age range than women.  
+In the "more than high school" group, men and women show nearly identical age distributions, indicating less gender disparity in age for those with higher education levels.  
+
+#### And create a box plot.  
+
+```{r boxplot_of_age}
+# Create a box plot of age by gender and education
+ggplot(nhanes_covar, aes(x = education, y = age, fill = sex)) +
+  geom_boxplot() + 
+  labs(
+    title = "Age Distributions by Education and Sex",
+    x = "Education Level",
+    y = "Age",
+    fill = "Sex"
+  ) +
+  theme_minimal() +  # Use a simple theme
+  theme(legend.position = "bottom",  # Place the legend at the bottom of the chart
+        plot.title = element_text(hjust = 0.5))  # Set the title to center
+```
+
+This boxplot shows the age distributions for men and women across different education levels: Less than high school, High school equivalent, and More than high school. Each boxplot displays the median age, interquartile range (IQR), and potential outliers for both genders.  
+
+### Using your tidied dataset, aggregate across minutes to create a total activity variable for each participant. 
+
+First, merge two datasets by SEQN.
+
+```{r merge_datasets}
+# Use the left_join() function to merge the columns using the SEQN  column as the common column.
+nhanes_merged <- left_join(nhanes_covar, nhanes_accel, by = "SEQN")
+```
+
+By using merged data, I can calculate the total activity for each participant.   
+
+```{r total_activity}
+# Use pull() to extract all columns related to minute data and calculate the total activity for each participant
+nhanes_merged <- nhanes_merged %>% 
+  mutate(total_activity = rowSums(select(., starts_with("min")) %>%
+                                    as.matrix(), na.rm = TRUE)) %>% 
+  relocate(total_activity, .before = min1)  # Move total_activity before min1
+
+#Show nhanes_merged
+nhanes_merged %>% select(1:6) %>% glimpse()
+```
+
+Now, column total_activity in nhanes_merged represent total activity in all minutes for each participant.   
+Therefore, I can Use ggplot2 to plot total activity versus age, and facet by gender and education level.  
+
+```{r total_activity_age}
+# Plot the relationship between total activity and age
+ggplot(nhanes_merged, aes(x = age, y = total_activity, colour = sex)) + 
+  geom_point(alpha = 0.5) +  # Draw a scatter plot
+  geom_smooth(method = "loess", se = FALSE) +  # Add a smooth trend line
+  facet_wrap(~ education) +  # Faced by education level
+  labs(
+    title = "Total Daily Activity vs. Age by Education Level and Sex",
+    x = "Age",
+    y = "Total Daily Activity",
+    color = "Sex"
+  ) + 
+  theme_minimal() +  # Simple theme
+  theme(
+    legend.position = "bottom", 
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+This plot compares total daily activity (y-axis) against age (x-axis), separated by education level (facets) and showing differences between men (red) and women (blue).  
+
+1. Less than high school:  
+Both men and women show a clear decrease in total daily activity as they age.  
+Activity levels for men are slightly higher than women at younger ages, but both decrease significantly with age, particularly after 60.  
+Women show a steeper decline in activity after age 50, with almost no activity beyond age 70.  
+This group shows a strong age-related decline in activity, with both genders being less active at older ages, though women seem to experience a sharper decline.  
+
+2. High school equivalent:  
+Women have a noticeable peak in activity around age 40–50, but their activity decreases steadily afterward.  
+Men show a flatter, more gradual decline with age, with lower activity than women at middle age but converging in older ages (60+).  
+Women in this group tend to be more active during middle age (40–50), but their activity decreases more rapidly compared to men, who show a more consistent decline.  
+
+3. More than high school:  
+Men and women in this group show relatively similar activity levels at younger and middle ages, with a slight decrease as they get older.  
+Both genders maintain higher activity levels compared to the other education groups until their 50s, after which their activity begins to decline.  
+People with more than high school education tend to maintain higher activity levels through middle age, with smaller gender differences. Their overall activity declines more gradually compared to the less educated groups.  
+
+Overall Observations:  
+Age-related decline: Across all education levels, both men and women show a decrease in physical activity as they age, particularly after 50.  
+Education level differences: Those with higher education levels tend to maintain higher activity levels into middle age compared to those with lower education.  
+Gender differences: In the "high school equivalent" group, women are more active during middle age, while in the "less than high school" group, men maintain slightly higher activity levels until old age.  
+
+### A three-panel plot that shows the 24-hour activity time courses for each education level. 
+
+#### Data reshaping 
+
+First I need to reshape the data to have a time course that represents the hours of the day.  
+
+```{r reshape_data}
+# Convert minute columns into long format to represent time in minutes
+activity_long <- nhanes_merged %>% 
+  pivot_longer(cols = starts_with("min"),  #The pivot_longer() function converts data from wide format to long format.
+               names_to = "minute", 
+               values_to = "activity") %>% 
+  mutate(minute = as.numeric(gsub("min", "", minute))) %>% 
+  mutate(hour = floor(minute / 60)) %>% 
+  group_by(SEQN, sex, age, education, hour) %>% 
+  summarise(mean_activity = mean(activity, na.rm = TRUE), .groups = "drop") 
+```
+
+Now I have converted the minutes of data into hourly data and combine it with gender and education level.  
+
+#### Create the Plot 
+
+Let me create a plot where we have 24-hour activity time courses separated by education level (facets), and we use color to differentiate between men and women. We'll also include a smooth trend to highlight patterns in activity levels over the day.  
+
+```{r three-panel_plot}
+ggplot(activity_long, aes(x = hour, y = mean_activity, color = sex)) + 
+  geom_point(alpha = 0.5, size = 1.5) +  # Add points to represent minute-level activity
+  geom_smooth(method = "loess", se = FALSE) +  # Add a smooth trend line
+  facet_wrap(~ education) +  # Create three panels by education level 
+  labs(
+    title = "24-Hour Activity Time Courses by Education Level and Sex", 
+    x = "Hour of the Day", 
+    y = "Activity Level", 
+    color = "Sex"
+  ) + 
+  scale_x_continuous(breaks = seq(0, 24, by = 4)) +  # Display a tick every 4 hours
+  scale_y_continuous(breaks = seq(0, 60, by = 5)) + 
+  theme_minimal() +  # Minimalist theme
+  theme(
+    plot.title = element_text(hjust = 0.5),  # Center the title
+    legend.position = "bottom"  # Place legend at the bottom
+  )
+```
+
+This plot shows 24-hour activity levels by education level and sex. The x-axis represents the hour of the day, and the y-axis shows activity levels. Each panel represents a different education level, with red for males and blue for females.  
+Higher education correlates with more structured daily activity patterns, while males tend to be slightly more active than females, particularly during peak activity times.  
+
+1. Daily Activity Pattern:  
+Across all groups, activity rises in the morning, peaks between 10 AM and 3 PM, and declines in the evening, with minimal activity at night.  
+2. Education Level Differences:  
+Less than high school: More variability and lower, less structured activity levels.  
+High school equivalent: A clearer, more sustained midday peak.  
+More than high school: Most consistent pattern with a sharp rise in the morning, a midday peak, and a steady evening decline.  
+3. Sex Differences:  
+Males generally show slightly higher activity levels, especially during peak hours, though trends for males and females are quite similar across all education levels.  
